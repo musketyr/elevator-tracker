@@ -90,6 +90,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   const [statsDays, setStatsDays] = useState(7)
   const [qrData, setQrData] = useState<{ qr: string; url: string } | null>(null)
   const [activeTab, setActiveTab] = useState<'stats' | 'preview' | 'qr'>('stats')
+  const [printLang, setPrintLang] = useState<Lang>('en')
   const [previewLang, setPreviewLang] = useState<Lang>('en')
   const [loading, setLoading] = useState(false)
 
@@ -179,7 +180,9 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
     if (!qrData || !selectedEl) return
     const elLangs = selectedElLangs as Lang[]
     const langFlags: Record<string, string> = { en: '🇬🇧', cs: '🇨🇿', sk: '🇸🇰', uk: '🇺🇦', ru: '🇷🇺', de: '🇩🇪', fr: '🇫🇷' }
-    const allProblemScan = elLangs.map(l => `<div class="lang-row"><span class="flag">${langFlags[l] || ''}</span> ${t(l, 'problemScan')}</div>`).join('')
+    const mainLang = elLangs.includes(printLang) ? printLang : elLangs[0]
+    const otherLangs = elLangs.filter(l => l !== mainLang)
+    const otherProblemScan = otherLangs.map(l => `<div class="lang-row"><span class="flag">${langFlags[l] || ''}</span> ${t(l, 'problemScan')}</div>`).join('')
     const w = window.open('', '_blank')
     if (w) {
       w.document.write(`<!DOCTYPE html><html><head><title>Elevator QR</title>
@@ -213,7 +216,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
 </style></head><body>
 <div class="card">
   <div class="top">
-    <div class="headline">🛗 ${elLangs.length > 0 ? t(elLangs[0], 'problemScan') : 'Problem? Scan!'}</div>
+    <div class="headline">🛗 ${t(mainLang, 'problemScan')}</div>
     <div class="elevator-name">${selectedEl.name}</div>
     ${selectedEl.location ? `<div class="elevator-location">${selectedEl.location}</div>` : ''}
   </div>
@@ -222,7 +225,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   </div>
   <div class="bottom">
     <div class="accent-bar"></div>
-    <div class="lang-section">${allProblemScan}</div>
+    ${otherLangs.length > 0 ? `<div class="lang-section">${otherProblemScan}</div>` : ''}
     <div class="url">${qrData.url}</div>
     <div class="brand">Elevator Tracker</div>
   </div>
@@ -521,6 +524,19 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                           Download QR
                         </a>
+                        <div className="flex items-center gap-2 mb-2">
+                          <label className="text-xs text-slate-500 font-medium whitespace-nowrap">Main language:</label>
+                          <select
+                            value={printLang}
+                            onChange={(e) => setPrintLang(e.target.value as Lang)}
+                            className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white"
+                          >
+                            {selectedElLangs.map(l => {
+                              const flags: Record<string, string> = { en: '🇬🇧', cs: '🇨🇿', sk: '🇸🇰', uk: '🇺🇦', ru: '🇷🇺', de: '🇩🇪', fr: '🇫🇷' }
+                              return <option key={l} value={l}>{flags[l] || ''} {l.toUpperCase()}</option>
+                            })}
+                          </select>
+                        </div>
                         <button
                           onClick={printQR}
                           className="flex items-center justify-center gap-2 bg-slate-700 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 transition-all w-full"
