@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Elevator Tracker <onboarding@resend.dev>',
+        from: 'Elevator Tracker <noreply@telegraphic.app>',
         to: email.toLowerCase(),
         subject: 'Your login link - Elevator Tracker',
         html: `<p>Click the link below to log in:</p><p><a href="${magicUrl}">${magicUrl}</a></p><p>This link expires in 15 minutes.</p>`,
