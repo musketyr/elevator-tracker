@@ -71,9 +71,9 @@ export default function LandingPage() {
           </select>
           <a
             href={loggedIn ? "/admin" : "/admin/login"}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25 text-sm whitespace-nowrap"
           >
-            {loggedIn ? 'Dashboard' : t(lang, 'logIn')}
+            {loggedIn ? t(lang, 'dashboard') : t(lang, 'logIn')}
           </a>
         </div>
       </nav>
@@ -100,7 +100,7 @@ export default function LandingPage() {
               href={loggedIn ? "/admin" : "/admin/login"}
               className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-blue-500/25 hover:-translate-y-0.5"
             >
-              {loggedIn ? 'Go to Dashboard' : t(lang, 'getStarted')}
+              {loggedIn ? t(lang, 'dashboard') : t(lang, 'getStarted')}
             </a>
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function LandingPage() {
             href={loggedIn ? "/admin" : "/admin/login"}
             className="inline-block bg-white text-blue-600 px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
           >
-            {loggedIn ? 'Go to Dashboard' : t(lang, 'ctaButton')}
+            {loggedIn ? t(lang, 'dashboard') : t(lang, 'ctaButton')}
           </a>
         </div>
       </section>
