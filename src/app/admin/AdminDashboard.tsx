@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { t, Lang, languages, languageNames } from '@/lib/i18n'
 
@@ -73,7 +74,19 @@ const LANG_FLAGS: Record<string, string> = {
   en: '🇬🇧', cs: '🇨🇿', sk: '🇸🇰', uk: '🇺🇦', ru: '🇷🇺', de: '🇩🇪', fr: '🇫🇷',
 }
 
+function updateUrlParams(params: Record<string, string | null>) {
+  const url = new URL(window.location.href)
+  for (const [key, value] of Object.entries(params)) {
+    if (value === null) url.searchParams.delete(key)
+    else url.searchParams.set(key, value)
+  }
+  window.history.replaceState({}, '', url.toString())
+}
+
 export default function AdminDashboard({ admin }: { admin: Admin }) {
+  const searchParams = useSearchParams()
+  const initializedRef = useRef(false)
+
   const [elevators, setElevators] = useState<Elevator[]>([])
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
@@ -83,14 +96,33 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteElevatorId, setInviteElevatorId] = useState('')
   const [inviteMsg, setInviteMsg] = useState('')
-  const [selectedElevator, setSelectedElevator] = useState<string | null>(null)
+  const [selectedElevator, setSelectedElevator] = useState<string | null>(searchParams.get('elevator'))
   const [stats, setStats] = useState<any>(null)
-  const [statsDays, setStatsDays] = useState(7)
+  const [statsDays, setStatsDays] = useState(() => {
+    const d = searchParams.get('days')
+    return d === '30' ? 30 : 7
+  })
   const [qrData, setQrData] = useState<{ qr: string; url: string } | null>(null)
-  const [activeTab, setActiveTab] = useState<'stats' | 'preview' | 'qr'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'preview' | 'qr'>(() => {
+    const t = searchParams.get('tab')
+    return t === 'preview' || t === 'qr' ? t : 'stats'
+  })
   const [printLang, setPrintLang] = useState<Lang>('en')
   const [previewLang, setPreviewLang] = useState<Lang>('en')
   const [loading, setLoading] = useState(false)
+
+  // Sync state changes to URL
+  useEffect(() => {
+    if (!initializedRef.current) {
+      initializedRef.current = true
+      return
+    }
+    updateUrlParams({
+      elevator: selectedElevator,
+      tab: selectedElevator ? activeTab : null,
+      days: selectedElevator && statsDays !== 7 ? String(statsDays) : null,
+    })
+  }, [selectedElevator, activeTab, statsDays])
 
   const loadElevators = useCallback(async () => {
     const res = await fetch('/api/elevators')
@@ -152,7 +184,8 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   }
 
   const inviteAdmin = async () => {
-    if (!inviteElevatorId) {
+    const targetElevatorId = selectedElevator || inviteElevatorId
+    if (!targetElevatorId) {
       setInviteMsg('Please select an elevator')
       setTimeout(() => setInviteMsg(''), 3000)
       return
@@ -160,7 +193,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
     const res = await fetch('/api/admin/invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: inviteEmail, elevatorId: inviteElevatorId }),
+      body: JSON.stringify({ email: inviteEmail, elevatorId: targetElevatorId }),
     })
     if (res.ok) {
       setInviteMsg('Invitation sent!')
