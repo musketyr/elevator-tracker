@@ -11,9 +11,10 @@ interface Elevator {
 }
 
 const ISSUES = [
-  { key: 'stopped_unexpectedly', icon: '🛑', color: 'bg-red-500 hover:bg-red-600', labelKey: 'stoppedUnexpectedly' },
-  { key: 'rumbled_occupied', icon: '📳', color: 'bg-orange-500 hover:bg-orange-600', labelKey: 'rumbledOccupied' },
-  { key: 'rumbled_arrival', icon: '⚠️', color: 'bg-yellow-500 hover:bg-yellow-600', labelKey: 'rumbledArrival' },
+  { key: 'stopped_with_me', icon: '🛑', color: 'bg-red-500 hover:bg-red-600', labelKey: 'stoppedWithMe' },
+  { key: 'stopped_before_arrival', icon: '⛔', color: 'bg-red-400 hover:bg-red-500', labelKey: 'stoppedBeforeArrival' },
+  { key: 'rumbled_with_me', icon: '📳', color: 'bg-orange-500 hover:bg-orange-600', labelKey: 'rumbledWithMe' },
+  { key: 'rumbled_before_arrival', icon: '⚠️', color: 'bg-yellow-500 hover:bg-yellow-600', labelKey: 'rumbledBeforeArrival' },
 ]
 
 function getDeviceHash(): string {
@@ -156,9 +157,6 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
           {elevator.location && (
             <p className="text-gray-500 mt-1">{elevator.location}</p>
           )}
-          <div className="mt-4 bg-blue-500 text-white rounded-2xl py-3 px-6 inline-block shadow-lg">
-            <p className="text-lg font-semibold">{t(lang, 'problemScan')}</p>
-          </div>
         </div>
 
         {/* Honeypot (invisible) */}

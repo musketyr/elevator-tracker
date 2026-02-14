@@ -17,17 +17,19 @@ interface Admin {
   email: string
 }
 
-const COLORS = ['#ef4444', '#f97316', '#eab308']
+const COLORS = ['#ef4444', '#f87171', '#f97316', '#eab308']
 const ISSUE_LABELS: Record<string, string> = {
-  stopped_unexpectedly: '🛑 Stopped',
-  rumbled_occupied: '📳 Rumbled (Occupied)',
-  rumbled_arrival: '⚠️ Rumbled (Arrival)',
+  stopped_with_me: '🛑 Stopped with me',
+  stopped_before_arrival: '⛔ Stopped before arrival',
+  rumbled_with_me: '📳 Rumbled with me',
+  rumbled_before_arrival: '⚠️ Rumbled before arrival',
 }
 
 const ISSUES = [
-  { key: 'stopped_unexpectedly', icon: '🛑', color: 'bg-red-500', labelKey: 'stoppedUnexpectedly' },
-  { key: 'rumbled_occupied', icon: '📳', color: 'bg-orange-500', labelKey: 'rumbledOccupied' },
-  { key: 'rumbled_arrival', icon: '⚠️', color: 'bg-yellow-500', labelKey: 'rumbledArrival' },
+  { key: 'stopped_with_me', icon: '🛑', color: 'bg-red-500', labelKey: 'stoppedWithMe' },
+  { key: 'stopped_before_arrival', icon: '⛔', color: 'bg-red-400', labelKey: 'stoppedBeforeArrival' },
+  { key: 'rumbled_with_me', icon: '📳', color: 'bg-orange-500', labelKey: 'rumbledWithMe' },
+  { key: 'rumbled_before_arrival', icon: '⚠️', color: 'bg-yellow-500', labelKey: 'rumbledBeforeArrival' },
 ]
 
 function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewLang: Lang }) {

@@ -116,13 +116,13 @@ export default function LandingPage() {
               </div>
               <div className="space-y-2.5">
                 <div className="bg-red-500 text-white rounded-xl py-3 px-4 flex items-center gap-3 text-sm font-medium shadow">
-                  <span className="text-xl">🛑</span> {t(lang, 'stoppedUnexpectedly')}
+                  <span className="text-xl">🛑</span> {t(lang, 'stoppedWithMe')}
                 </div>
                 <div className="bg-orange-500 text-white rounded-xl py-3 px-4 flex items-center gap-3 text-sm font-medium shadow">
-                  <span className="text-xl">📳</span> {t(lang, 'rumbledOccupied')}
+                  <span className="text-xl">📳</span> {t(lang, 'rumbledWithMe')}
                 </div>
                 <div className="bg-yellow-500 text-white rounded-xl py-3 px-4 flex items-center gap-3 text-sm font-medium shadow">
-                  <span className="text-xl">⚠️</span> {t(lang, 'rumbledArrival')}
+                  <span className="text-xl">⚠️</span> {t(lang, 'rumbledBeforeArrival')}
                 </div>
                 <div className="bg-emerald-500 text-white rounded-xl py-3 px-4 flex items-center gap-3 text-sm font-medium shadow border border-emerald-400">
                   <span className="text-xl">✅</span> {t(lang, 'everythingFine')}

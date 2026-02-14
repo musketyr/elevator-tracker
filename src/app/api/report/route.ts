@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import pool from '@/lib/db'
 
-const VALID_ISSUES = ['stopped_unexpectedly', 'rumbled_occupied', 'rumbled_arrival']
+const VALID_ISSUES = ['stopped_with_me', 'stopped_before_arrival', 'rumbled_with_me', 'rumbled_before_arrival']
 
 export async function POST(req: NextRequest) {
   try {
