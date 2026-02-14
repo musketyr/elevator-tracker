@@ -16,12 +16,14 @@ export async function POST(req: NextRequest) {
   const admin = await getAdmin()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { name, location } = await req.json()
+  const { name, location, languages } = await req.json()
   if (!name) return NextResponse.json({ error: 'Name required' }, { status: 400 })
 
+  const langs = Array.isArray(languages) && languages.length > 0 ? languages : ['en']
+
   const result = await pool.query(
-    'INSERT INTO elevators (name, location, admin_id) VALUES ($1, $2, $3) RETURNING *',
-    [name, location || null, admin.id]
+    'INSERT INTO elevators (name, location, admin_id, languages) VALUES ($1, $2, $3, $4) RETURNING *',
+    [name, location || null, admin.id, langs]
   )
   return NextResponse.json(result.rows[0])
 }

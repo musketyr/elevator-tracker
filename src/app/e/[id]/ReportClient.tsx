@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { t, Lang, languages, languageNames } from '@/lib/i18n'
+import { t, Lang, languages, languageNames, detectBrowserLanguage } from '@/lib/i18n'
 
 interface Elevator {
   id: string
   name: string
   location: string | null
+  languages: Lang[]
 }
 
 const ISSUES = [
@@ -29,21 +30,19 @@ function getDeviceHash(): string {
 }
 
 export default function ReportClient({ elevator }: { elevator: Elevator }) {
-  const [lang, setLang] = useState<Lang>('en')
+  const availableLanguages = (elevator.languages && elevator.languages.length > 0 ? elevator.languages : ['en']) as Lang[]
+  const [lang, setLang] = useState<Lang>(availableLanguages[0])
   const [submitted, setSubmitted] = useState(false)
+  const [submittedFine, setSubmittedFine] = useState(false)
   const [cooldown, setCooldown] = useState(false)
   const [cooldownMin, setCooldownMin] = useState(0)
   const [loading, setLoading] = useState(false)
   const [honeypot, setHoneypot] = useState('')
 
   useEffect(() => {
-    // Detect language
-    const browserLang = navigator.language?.substring(0, 2).toLowerCase()
-    if (languages.includes(browserLang as Lang)) {
-      setLang(browserLang as Lang)
-    }
+    const detected = detectBrowserLanguage(availableLanguages)
+    setLang(detected)
 
-    // Check localStorage cooldown
     const lastReport = localStorage.getItem(`report_${elevator.id}`)
     if (lastReport) {
       const elapsed = Date.now() - parseInt(lastReport)
@@ -52,7 +51,7 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
         setCooldownMin(Math.ceil((60 * 60 * 1000 - elapsed) / 60000))
       }
     }
-  }, [elevator.id])
+  }, [elevator.id, availableLanguages.join(',')])
 
   const report = async (issueType: string) => {
     if (loading || cooldown) return
@@ -77,7 +76,11 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
       }
 
       if (res.ok) {
-        setSubmitted(true)
+        if (issueType === 'everything_fine') {
+          setSubmittedFine(true)
+        } else {
+          setSubmitted(true)
+        }
         localStorage.setItem(`report_${elevator.id}`, Date.now().toString())
         setTimeout(() => {
           setCooldown(true)
@@ -103,6 +106,17 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
     )
   }
 
+  if (submittedFine) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-400 to-teal-600">
+        <div className="text-center animate-bounce-in">
+          <p className="text-8xl mb-6">✅</p>
+          <h1 className="text-3xl font-bold text-white mb-2">{t(lang, 'thanksFine')}</h1>
+        </div>
+      </div>
+    )
+  }
+
   if (cooldown) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600">
@@ -116,18 +130,20 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-      {/* Language Switcher */}
-      <div className="flex justify-end p-3">
-        <select
-          value={lang}
-          onChange={(e) => setLang(e.target.value as Lang)}
-          className="text-sm bg-white border rounded-lg px-3 py-1.5 shadow-sm"
-        >
-          {languages.map((l) => (
-            <option key={l} value={l}>{languageNames[l]}</option>
-          ))}
-        </select>
-      </div>
+      {/* Language Switcher - only if multiple languages */}
+      {availableLanguages.length > 1 && (
+        <div className="flex justify-end p-3">
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as Lang)}
+            className="text-sm bg-white border rounded-lg px-3 py-1.5 shadow-sm"
+          >
+            {availableLanguages.map((l) => (
+              <option key={l} value={l}>{languageNames[l]}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="max-w-md mx-auto px-4 pb-8">
         {/* Header */}
@@ -167,6 +183,23 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
             </button>
           ))}
         </div>
+
+        {/* Divider */}
+        <div className="my-6 flex items-center gap-3">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="text-sm text-gray-400">{t(lang, 'orLetUsKnow')}</span>
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+
+        {/* Everything Fine Button */}
+        <button
+          onClick={() => report('everything_fine')}
+          disabled={loading}
+          className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl py-6 px-6 text-left flex items-center gap-4 shadow-lg transform transition-all active:scale-95 disabled:opacity-50 border-2 border-emerald-400"
+        >
+          <span className="text-4xl">✅</span>
+          <span className="text-xl font-semibold">{t(lang, 'everythingFine')}</span>
+        </button>
       </div>
     </div>
   )

@@ -8,6 +8,7 @@ interface Elevator {
   id: string
   name: string
   location: string | null
+  languages: string[]
   report_count: string
 }
 
@@ -16,17 +17,19 @@ interface Admin {
   email: string
 }
 
-const COLORS = ['#ef4444', '#f97316', '#eab308']
+const COLORS = ['#ef4444', '#f97316', '#eab308', '#10b981']
 const ISSUE_LABELS: Record<string, string> = {
   stopped_unexpectedly: '🛑 Stopped',
   rumbled_occupied: '📳 Rumbled (Occupied)',
   rumbled_arrival: '⚠️ Rumbled (Arrival)',
+  everything_fine: '✅ Everything Fine',
 }
 
 const ISSUES = [
   { key: 'stopped_unexpectedly', icon: '🛑', color: 'bg-red-500', labelKey: 'stoppedUnexpectedly' },
   { key: 'rumbled_occupied', icon: '📳', color: 'bg-orange-500', labelKey: 'rumbledOccupied' },
   { key: 'rumbled_arrival', icon: '⚠️', color: 'bg-yellow-500', labelKey: 'rumbledArrival' },
+  { key: 'everything_fine', icon: '✅', color: 'bg-emerald-500', labelKey: 'everythingFine' },
 ]
 
 function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewLang: Lang }) {
@@ -45,7 +48,7 @@ function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewL
       </div>
       <p className="text-center text-sm font-medium text-gray-600 mb-3">{t(previewLang, 'reportIssue')}</p>
       <div className="space-y-3">
-        {ISSUES.map((issue) => (
+        {ISSUES.slice(0, 3).map((issue) => (
           <div
             key={issue.key}
             className={`w-full ${issue.color} text-white rounded-2xl py-4 px-5 flex items-center gap-3 shadow-lg cursor-default`}
@@ -54,10 +57,23 @@ function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewL
             <span className="text-lg font-semibold">{t(previewLang, issue.labelKey)}</span>
           </div>
         ))}
+        <div className="my-2 flex items-center gap-2">
+          <div className="flex-1 h-px bg-gray-300" />
+          <span className="text-xs text-gray-400">{t(previewLang, 'orLetUsKnow')}</span>
+          <div className="flex-1 h-px bg-gray-300" />
+        </div>
+        <div className="w-full bg-emerald-500 text-white rounded-2xl py-4 px-5 flex items-center gap-3 shadow-lg cursor-default border-2 border-emerald-400">
+          <span className="text-3xl">✅</span>
+          <span className="text-lg font-semibold">{t(previewLang, 'everythingFine')}</span>
+        </div>
       </div>
       <p className="text-center text-xs text-gray-400 mt-4 italic">Preview only — buttons do not submit reports</p>
     </div>
   )
+}
+
+const LANG_FLAGS: Record<string, string> = {
+  en: '🇬🇧', cs: '🇨🇿', sk: '🇸🇰', uk: '🇺🇦', ru: '🇷🇺', de: '🇩🇪', fr: '🇫🇷',
 }
 
 export default function AdminDashboard({ admin }: { admin: Admin }) {
@@ -66,6 +82,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   const [editId, setEditId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en'])
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteMsg, setInviteMsg] = useState('')
   const [selectedElevator, setSelectedElevator] = useState<string | null>(null)
@@ -102,18 +119,29 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
     }
   }, [selectedElevator, statsDays])
 
+  const toggleLanguage = (lang: string) => {
+    setSelectedLanguages(prev => {
+      if (prev.includes(lang)) {
+        if (prev.length === 1) return prev // Must have at least one
+        return prev.filter(l => l !== lang)
+      }
+      return [...prev, lang]
+    })
+  }
+
   const saveElevator = async () => {
     const method = editId ? 'PUT' : 'POST'
     const url = editId ? `/api/elevators/${editId}` : '/api/elevators'
     await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, location }),
+      body: JSON.stringify({ name, location, languages: selectedLanguages }),
     })
     setShowForm(false)
     setEditId(null)
     setName('')
     setLocation('')
+    setSelectedLanguages(['en'])
     loadElevators()
   }
 
@@ -145,10 +173,12 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   }
 
   const selectedEl = elevators.find(e => e.id === selectedElevator)
+  const selectedElLangs = selectedEl?.languages && selectedEl.languages.length > 0 ? selectedEl.languages : ['en']
 
   const printQR = () => {
     if (!qrData || !selectedEl) return
-    const allProblemScan = languages.map(l => `<p style="font-size:10px;margin:1px 0;color:#334155;">${t(l, 'problemScan')}</p>`).join('')
+    const elLangs = selectedElLangs as Lang[]
+    const allProblemScan = elLangs.map(l => `<p style="font-size:10px;margin:1px 0;color:#334155;">${t(l, 'problemScan')}</p>`).join('')
     const w = window.open('', '_blank')
     if (w) {
       w.document.write(`<!DOCTYPE html><html><head><title>Elevator QR</title>
@@ -215,7 +245,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-slate-800">Elevators</h2>
               <button
-                onClick={() => { setShowForm(true); setEditId(null); setName(''); setLocation('') }}
+                onClick={() => { setShowForm(true); setEditId(null); setName(''); setLocation(''); setSelectedLanguages(['en']) }}
                 className="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-all hover:shadow-lg hover:shadow-blue-500/25 flex items-center gap-1.5"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -237,6 +267,26 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Languages</label>
+                  <div className="flex flex-wrap gap-2">
+                    {languages.map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => toggleLanguage(l)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                          selectedLanguages.includes(l)
+                            ? 'bg-blue-500 text-white shadow-sm'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        <span>{LANG_FLAGS[l]}</span>
+                        <span>{languageNames[l as Lang]}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="flex gap-2">
                   <button onClick={saveElevator} className="bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors">
                     Save
@@ -263,11 +313,16 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                     <div>
                       <h3 className="font-semibold text-slate-800">{el.name}</h3>
                       {el.location && <p className="text-sm text-slate-500 mt-0.5">{el.location}</p>}
+                      <div className="flex gap-1 mt-1">
+                        {(el.languages || ['en']).map((l: string) => (
+                          <span key={l} className="text-xs" title={languageNames[l as Lang]}>{LANG_FLAGS[l]}</span>
+                        ))}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-full font-medium">{el.report_count}</span>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setEditId(el.id); setName(el.name); setLocation(el.location || ''); setShowForm(true) }}
+                        onClick={(e) => { e.stopPropagation(); setEditId(el.id); setName(el.name); setLocation(el.location || ''); setSelectedLanguages(el.languages || ['en']); setShowForm(true) }}
                         className="text-slate-400 hover:text-blue-500 transition-colors p-1"
                         title="Edit"
                       >
@@ -425,7 +480,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                         onChange={(e) => setPreviewLang(e.target.value as Lang)}
                         className="text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        {languages.map((l) => (
+                        {(selectedElLangs as Lang[]).map((l) => (
                           <option key={l} value={l}>{languageNames[l]}</option>
                         ))}
                       </select>
@@ -466,7 +521,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                           <ul className="text-xs text-blue-600 space-y-1">
                             <li>• Elevator name & location</li>
                             <li>• Large QR code</li>
-                            <li>• &quot;Problem? Scan!&quot; in all 7 languages</li>
+                            <li>• &quot;Problem? Scan!&quot; in selected languages</li>
                             <li>• Report URL as text</li>
                           </ul>
                         </div>

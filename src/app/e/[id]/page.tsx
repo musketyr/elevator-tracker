@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function ElevatorPage({ params }: { params: { id: string } }) {
   let elevator = null
   try {
-    const result = await pool.query('SELECT id, name, location FROM elevators WHERE id = $1', [params.id])
+    const result = await pool.query('SELECT id, name, location, languages FROM elevators WHERE id = $1', [params.id])
     if (result.rows.length > 0) elevator = result.rows[0]
   } catch {}
 

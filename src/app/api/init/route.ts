@@ -27,8 +27,16 @@ export async function GET() {
         name VARCHAR(255) NOT NULL,
         location VARCHAR(500),
         admin_id UUID REFERENCES admins(id),
+        languages TEXT[] DEFAULT '{en}',
         created_at TIMESTAMP DEFAULT now()
       )
+    `)
+    // Add languages column if it doesn't exist (for existing installations)
+    await pool.query(`
+      DO $$ BEGIN
+        ALTER TABLE elevators ADD COLUMN languages TEXT[] DEFAULT '{en}';
+      EXCEPTION WHEN duplicate_column THEN NULL;
+      END $$
     `)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS reports (
