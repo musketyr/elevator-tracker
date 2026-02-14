@@ -407,16 +407,22 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                 Invite Admin
               </h3>
               <div className="space-y-2">
-                <select
-                  value={inviteElevatorId}
-                  onChange={(e) => setInviteElevatorId(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Select elevator...</option>
-                  {elevators.map((el) => (
-                    <option key={el.id} value={el.id}>{el.name}{el.location ? ` — ${el.location}` : ''}</option>
-                  ))}
-                </select>
+                {selectedElevator ? (
+                  <p className="text-sm text-slate-500">
+                    Inviting to: <span className="font-medium text-slate-700">{elevators.find(e => e.id === selectedElevator)?.name}</span>
+                  </p>
+                ) : (
+                  <select
+                    value={inviteElevatorId}
+                    onChange={(e) => setInviteElevatorId(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select elevator...</option>
+                    {elevators.map((el) => (
+                      <option key={el.id} value={el.id}>{el.name}{el.location ? ` — ${el.location}` : ''}</option>
+                    ))}
+                  </select>
+                )}
                 <div className="flex gap-2">
                   <input
                     type="email"
