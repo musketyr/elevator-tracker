@@ -245,10 +245,10 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center text-lg">🛗</div>
             <h1 className="text-xl font-bold text-slate-800">Elevator Tracker</h1>
-          </div>
+          </a>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-500 hidden sm:inline">{admin.email}</span>
             <button onClick={logout} className="text-sm text-red-500 hover:text-red-700 font-medium transition-colors">

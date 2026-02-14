@@ -53,12 +53,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Nav */}
       <nav className="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl font-bold">
             🛗
           </div>
           <span className="text-xl font-bold">Elevator Tracker</span>
-        </div>
+        </a>
         <div className="flex items-center gap-3">
           <select
             value={lang}
