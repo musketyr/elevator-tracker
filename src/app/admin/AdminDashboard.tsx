@@ -178,42 +178,54 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   const printQR = () => {
     if (!qrData || !selectedEl) return
     const elLangs = selectedElLangs as Lang[]
-    const allProblemScan = elLangs.map(l => `<p style="font-size:10px;margin:1px 0;color:#334155;">${t(l, 'problemScan')}</p>`).join('')
+    const langFlags: Record<string, string> = { en: '🇬🇧', cs: '🇨🇿', sk: '🇸🇰', uk: '🇺🇦', ru: '🇷🇺', de: '🇩🇪', fr: '🇫🇷' }
+    const allProblemScan = elLangs.map(l => `<div class="lang-row"><span class="flag">${langFlags[l] || ''}</span> ${t(l, 'problemScan')}</div>`).join('')
     const w = window.open('', '_blank')
     if (w) {
       w.document.write(`<!DOCTYPE html><html><head><title>Elevator QR</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f1f5f9; }
-  @page { size: A6 portrait; margin: 0; }
-  @media print {
-    body { background: white; min-height: auto; }
-    .card { box-shadow: none !important; border: 2px solid #3b82f6 !important; width: 95mm; height: 138mm; border-radius: 8px; padding: 10mm 8mm; }
-  }
+  body { font-family: 'Inter', sans-serif; background: white; }
+  @page { size: 105mm 148mm; margin: 0; }
+  @media print { .card { border: none !important; box-shadow: none !important; } }
   .card {
-    background: white; border-radius: 16px; padding: 20px 16px; text-align: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08); width: 105mm; max-height: 148mm;
-    border: 2px solid #3b82f6; overflow: hidden;
+    width: 105mm; height: 148mm; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 6mm 6mm 4mm; text-align: center;
+    border: 2px solid #3b82f6; border-radius: 4mm; overflow: hidden;
+    background: linear-gradient(180deg, #eff6ff 0%, white 30%);
   }
-  .elevator-icon { font-size: 28px; margin-bottom: 4px; }
-  .elevator-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
-  .elevator-location { font-size: 11px; color: #64748b; margin-bottom: 10px; }
-  .qr-container { background: white; padding: 8px; display: inline-block; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
-  .qr-container img { width: 150px; height: 150px; }
-  .divider { height: 1px; background: linear-gradient(to right, transparent, #3b82f6, transparent); margin: 8px 0; }
-  .url { font-size: 8px; color: #94a3b8; word-break: break-all; margin-top: 6px; }
-  .brand { font-size: 8px; color: #cbd5e1; margin-top: 4px; }
+  .top { width: 100%; }
+  .headline { font-size: 22px; font-weight: 900; color: #1e40af; letter-spacing: -0.5px; margin-bottom: 2px; text-transform: uppercase; }
+  .elevator-name { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 1px; }
+  .elevator-location { font-size: 10px; color: #64748b; }
+  .qr-section { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3mm 0; }
+  .qr-container { background: white; padding: 3mm; border-radius: 3mm; border: 2px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .qr-container img { width: 45mm; height: 45mm; display: block; }
+  .bottom { width: 100%; }
+  .lang-section { background: #f8fafc; border-radius: 3mm; padding: 3mm 4mm; margin-bottom: 2mm; border: 1px solid #e2e8f0; }
+  .lang-row { font-size: 11px; color: #334155; margin: 1px 0; font-weight: 600; line-height: 1.5; }
+  .flag { font-size: 10px; margin-right: 2px; }
+  .url { font-size: 7px; color: #94a3b8; word-break: break-all; }
+  .brand { font-size: 7px; color: #cbd5e1; margin-top: 1mm; }
+  .accent-bar { height: 3px; width: 60%; background: linear-gradient(to right, #3b82f6, #60a5fa); border-radius: 2px; margin: 2mm auto; }
 </style></head><body>
 <div class="card">
-  <div class="elevator-icon">🛗</div>
-  <div class="elevator-name">${selectedEl.name}</div>
-  ${selectedEl.location ? `<div class="elevator-location">${selectedEl.location}</div>` : '<div style="margin-bottom:10px"></div>'}
-  <div class="qr-container"><img src="${qrData.qr}" alt="QR Code" /></div>
-  <div class="divider"></div>
-  ${allProblemScan}
-  <div class="url">${qrData.url}</div>
-  <div class="brand">Elevator Tracker</div>
+  <div class="top">
+    <div class="headline">🛗 ${elLangs.length > 0 ? t(elLangs[0], 'problemScan') : 'Problem? Scan!'}</div>
+    <div class="elevator-name">${selectedEl.name}</div>
+    ${selectedEl.location ? `<div class="elevator-location">${selectedEl.location}</div>` : ''}
+  </div>
+  <div class="qr-section">
+    <div class="qr-container"><img src="${qrData.qr}" alt="QR Code" /></div>
+  </div>
+  <div class="bottom">
+    <div class="accent-bar"></div>
+    <div class="lang-section">${allProblemScan}</div>
+    <div class="url">${qrData.url}</div>
+    <div class="brand">Elevator Tracker</div>
+  </div>
 </div>
 <script>setTimeout(() => window.print(), 500)</script>
 </body></html>`)
