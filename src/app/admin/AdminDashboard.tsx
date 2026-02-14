@@ -148,7 +148,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
 
   const printQR = () => {
     if (!qrData || !selectedEl) return
-    const allProblemScan = languages.map(l => `<p style="font-size:18px;margin:4px 0;color:#334155;">${t(l, 'problemScan')}</p>`).join('')
+    const allProblemScan = languages.map(l => `<p style="font-size:10px;margin:1px 0;color:#334155;">${t(l, 'problemScan')}</p>`).join('')
     const w = window.open('', '_blank')
     if (w) {
       w.document.write(`<!DOCTYPE html><html><head><title>Elevator QR</title>
@@ -156,25 +156,29 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f1f5f9; }
-  @media print { body { background: white; } .card { box-shadow: none !important; border: 2px solid #e2e8f0 !important; } }
-  .card {
-    background: white; border-radius: 24px; padding: 48px 40px; text-align: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 420px; width: 100%;
-    border: 3px solid #3b82f6;
+  @page { size: A6 portrait; margin: 0; }
+  @media print {
+    body { background: white; min-height: auto; }
+    .card { box-shadow: none !important; border: 2px solid #3b82f6 !important; width: 95mm; height: 138mm; border-radius: 8px; padding: 10mm 8mm; }
   }
-  .elevator-icon { font-size: 48px; margin-bottom: 12px; }
-  .elevator-name { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-  .elevator-location { font-size: 16px; color: #64748b; margin-bottom: 24px; }
-  .qr-container { background: white; padding: 16px; display: inline-block; border-radius: 16px; border: 2px solid #e2e8f0; margin-bottom: 24px; }
-  .qr-container img { width: 240px; height: 240px; }
-  .divider { height: 2px; background: linear-gradient(to right, transparent, #3b82f6, transparent); margin: 20px 0; }
-  .url { font-size: 12px; color: #94a3b8; word-break: break-all; margin-top: 16px; }
-  .brand { font-size: 11px; color: #cbd5e1; margin-top: 12px; }
+  .card {
+    background: white; border-radius: 16px; padding: 20px 16px; text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08); width: 105mm; max-height: 148mm;
+    border: 2px solid #3b82f6; overflow: hidden;
+  }
+  .elevator-icon { font-size: 28px; margin-bottom: 4px; }
+  .elevator-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
+  .elevator-location { font-size: 11px; color: #64748b; margin-bottom: 10px; }
+  .qr-container { background: white; padding: 8px; display: inline-block; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+  .qr-container img { width: 150px; height: 150px; }
+  .divider { height: 1px; background: linear-gradient(to right, transparent, #3b82f6, transparent); margin: 8px 0; }
+  .url { font-size: 8px; color: #94a3b8; word-break: break-all; margin-top: 6px; }
+  .brand { font-size: 8px; color: #cbd5e1; margin-top: 4px; }
 </style></head><body>
 <div class="card">
   <div class="elevator-icon">🛗</div>
   <div class="elevator-name">${selectedEl.name}</div>
-  ${selectedEl.location ? `<div class="elevator-location">${selectedEl.location}</div>` : '<div style="margin-bottom:24px"></div>'}
+  ${selectedEl.location ? `<div class="elevator-location">${selectedEl.location}</div>` : '<div style="margin-bottom:10px"></div>'}
   <div class="qr-container"><img src="${qrData.qr}" alt="QR Code" /></div>
   <div class="divider"></div>
   ${allProblemScan}
