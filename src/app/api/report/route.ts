@@ -48,12 +48,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many reports', cooldown: true }, { status: 429 })
     }
 
-    await pool.query(
-      'INSERT INTO reports (elevator_id, issue_type, device_hash, ip_address) VALUES ($1, $2, $3, $4)',
+    const result = await pool.query(
+      'INSERT INTO reports (elevator_id, issue_type, device_hash, ip_address) VALUES ($1, $2, $3, $4) RETURNING id',
       [elevator_id, issue_type, device_hash || null, ip]
     )
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, id: result.rows[0].id })
   } catch (error: any) {
     console.error('Report error:', error)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

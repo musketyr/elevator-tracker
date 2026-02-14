@@ -30,9 +30,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     [params.id]
   )
 
+  // Recent reports
+  const recent = await pool.query(
+    `SELECT id, issue_type, reporter_name, suspicious, created_at 
+     FROM reports WHERE elevator_id = $1 
+     ORDER BY created_at DESC LIMIT 20`,
+    [params.id]
+  )
+
   return NextResponse.json({
     timeline: timeline.rows,
     breakdown: breakdown.rows,
     total: parseInt(total.rows[0].count),
+    recent: recent.rows,
   })
 }

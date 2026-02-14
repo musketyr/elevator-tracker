@@ -42,13 +42,10 @@ function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewL
         <p className="text-4xl mb-2">🛗</p>
         <h3 className="text-xl font-bold text-gray-800">{elevator.name}</h3>
         {elevator.location && <p className="text-gray-500 text-sm mt-1">{elevator.location}</p>}
-        <div className="mt-3 bg-blue-500 text-white rounded-2xl py-2.5 px-5 inline-block shadow-lg">
-          <p className="text-sm font-semibold">{t(previewLang, 'problemScan')}</p>
-        </div>
       </div>
       <p className="text-center text-sm font-medium text-gray-600 mb-3">{t(previewLang, 'reportIssue')}</p>
       <div className="space-y-3">
-        {ISSUES.slice(0, 3).map((issue) => (
+        {ISSUES.map((issue) => (
           <div
             key={issue.key}
             className={`w-full ${issue.color} text-white rounded-2xl py-4 px-5 flex items-center gap-3 shadow-lg cursor-default`}
@@ -477,6 +474,53 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                                   </div>
                                 ))}
                               </div>
+                            </div>
+                          </div>
+                        )}
+                        {/* Recent Reports */}
+                        {stats.recent && stats.recent.length > 0 && (
+                          <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                            <h3 className="font-semibold text-slate-800 mb-4">Recent Reports</h3>
+                            <div className="space-y-2">
+                              {stats.recent.map((r: any) => (
+                                <div
+                                  key={r.id}
+                                  className={`flex items-center justify-between p-3 rounded-xl border ${
+                                    r.suspicious ? 'border-amber-300 bg-amber-50' : 'border-slate-100 bg-slate-50'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {r.suspicious && <span className="text-amber-500" title="Suspicious">⚠️</span>}
+                                    <span className="text-lg">{ISSUE_LABELS[r.issue_type]?.split(' ')[0] || '❓'}</span>
+                                    <div>
+                                      <p className="text-sm font-medium text-slate-700">
+                                        {ISSUE_LABELS[r.issue_type]?.substring(2) || r.issue_type}
+                                      </p>
+                                      <p className="text-xs text-slate-400">
+                                        {new Date(r.created_at).toLocaleString()} · {r.reporter_name || 'Anonymous'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={async () => {
+                                      await fetch(`/api/report/${r.id}/suspicious`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ suspicious: !r.suspicious }),
+                                      })
+                                      loadStats(selectedElevator!, statsDays)
+                                    }}
+                                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
+                                      r.suspicious
+                                        ? 'bg-amber-200 text-amber-800 hover:bg-amber-300'
+                                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                    }`}
+                                    title={r.suspicious ? 'Unmark suspicious' : 'Mark as suspicious'}
+                                  >
+                                    {r.suspicious ? '🚩 Suspicious' : '🏳️ Mark'}
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}

@@ -48,6 +48,8 @@ export async function GET() {
         created_at TIMESTAMP DEFAULT now()
       )
     `)
+    await pool.query(`ALTER TABLE reports ADD COLUMN IF NOT EXISTS reporter_name VARCHAR(255)`)
+    await pool.query(`ALTER TABLE reports ADD COLUMN IF NOT EXISTS suspicious BOOLEAN DEFAULT false`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_elevator ON reports(elevator_id)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_elevator_device ON reports(elevator_id, device_hash, created_at)`)

@@ -35,6 +35,9 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
   const [lang, setLang] = useState<Lang>(availableLanguages[0])
   const [submitted, setSubmitted] = useState(false)
   const [submittedFine, setSubmittedFine] = useState(false)
+  const [askingName, setAskingName] = useState(false)
+  const [reportId, setReportId] = useState<string | null>(null)
+  const [reporterName, setReporterName] = useState('')
   const [cooldown, setCooldown] = useState(false)
   const [cooldownMin, setCooldownMin] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -43,6 +46,9 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
   useEffect(() => {
     const detected = detectBrowserLanguage(availableLanguages)
     setLang(detected)
+
+    const savedName = localStorage.getItem('reporter_name')
+    if (savedName) setReporterName(savedName)
 
     const lastReport = localStorage.getItem(`report_${elevator.id}`)
     if (lastReport) {
@@ -84,18 +90,79 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
       }
 
       if (res.ok) {
-        setSubmitted(true)
+        const data = await res.json()
+        setReportId(data.id)
+        setAskingName(true)
         localStorage.setItem(`report_${elevator.id}`, Date.now().toString())
-        setTimeout(() => {
-          setCooldown(true)
-          setCooldownMin(60)
-        }, 3000)
       }
     } catch (e) {
       console.error(e)
     } finally {
       setLoading(false)
     }
+  }
+
+  const submitName = async () => {
+    if (reporterName.trim() && reportId) {
+      localStorage.setItem('reporter_name', reporterName.trim())
+      try {
+        await fetch(`/api/report/${reportId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reporter_name: reporterName.trim() }),
+        })
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    setAskingName(false)
+    setSubmitted(true)
+    setTimeout(() => {
+      setCooldown(true)
+      setCooldownMin(60)
+    }, 3000)
+  }
+
+  const skipName = () => {
+    setAskingName(false)
+    setSubmitted(true)
+    setTimeout(() => {
+      setCooldown(true)
+      setCooldownMin(60)
+    }, 3000)
+  }
+
+  if (askingName) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-400 to-blue-600">
+        <div className="text-center p-8 max-w-sm w-full">
+          <p className="text-6xl mb-4">👤</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t(lang, 'whoIsReporting')}</h1>
+          <input
+            type="text"
+            value={reporterName}
+            onChange={(e) => setReporterName(e.target.value)}
+            placeholder={t(lang, 'yourNameOptional')}
+            className="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/20 text-white placeholder-white/60 text-center text-lg focus:outline-none focus:border-white/60 mb-4"
+            autoFocus
+          />
+          <div className="flex gap-3">
+            <button
+              onClick={skipName}
+              className="flex-1 bg-white/20 text-white py-3 rounded-xl font-semibold text-lg hover:bg-white/30 transition-all"
+            >
+              {t(lang, 'skip')}
+            </button>
+            <button
+              onClick={submitName}
+              className="flex-1 bg-white text-blue-600 py-3 rounded-xl font-semibold text-lg hover:bg-white/90 transition-all"
+            >
+              {t(lang, 'submit')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (submitted) {
