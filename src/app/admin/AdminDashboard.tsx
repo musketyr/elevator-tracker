@@ -17,19 +17,17 @@ interface Admin {
   email: string
 }
 
-const COLORS = ['#ef4444', '#f97316', '#eab308', '#10b981']
+const COLORS = ['#ef4444', '#f97316', '#eab308']
 const ISSUE_LABELS: Record<string, string> = {
   stopped_unexpectedly: '🛑 Stopped',
   rumbled_occupied: '📳 Rumbled (Occupied)',
   rumbled_arrival: '⚠️ Rumbled (Arrival)',
-  everything_fine: '✅ Everything Fine',
 }
 
 const ISSUES = [
   { key: 'stopped_unexpectedly', icon: '🛑', color: 'bg-red-500', labelKey: 'stoppedUnexpectedly' },
   { key: 'rumbled_occupied', icon: '📳', color: 'bg-orange-500', labelKey: 'rumbledOccupied' },
   { key: 'rumbled_arrival', icon: '⚠️', color: 'bg-yellow-500', labelKey: 'rumbledArrival' },
-  { key: 'everything_fine', icon: '✅', color: 'bg-emerald-500', labelKey: 'everythingFine' },
 ]
 
 function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewLang: Lang }) {

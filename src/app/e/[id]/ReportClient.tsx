@@ -55,6 +55,13 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
 
   const report = async (issueType: string) => {
     if (loading || cooldown) return
+
+    // "Everything Fine" — just show confirmation, no data recorded
+    if (issueType === 'everything_fine') {
+      setSubmittedFine(true)
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -76,11 +83,7 @@ export default function ReportClient({ elevator }: { elevator: Elevator }) {
       }
 
       if (res.ok) {
-        if (issueType === 'everything_fine') {
-          setSubmittedFine(true)
-        } else {
-          setSubmitted(true)
-        }
+        setSubmitted(true)
         localStorage.setItem(`report_${elevator.id}`, Date.now().toString())
         setTimeout(() => {
           setCooldown(true)
