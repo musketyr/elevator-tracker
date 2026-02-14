@@ -3,9 +3,10 @@ import pool from '@/lib/db'
 import { signToken } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.url
   const token = req.nextUrl.searchParams.get('token')
   if (!token) {
-    return NextResponse.redirect(new URL('/admin/login?error=invalid', req.url))
+    return NextResponse.redirect(new URL('/admin/login?error=invalid', baseUrl))
   }
 
   try {
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     )
 
     if (result.rows.length === 0) {
-      return NextResponse.redirect(new URL('/admin/login?error=expired', req.url))
+      return NextResponse.redirect(new URL('/admin/login?error=expired', baseUrl))
     }
 
     const { admin_id, email } = result.rows[0]
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     // Create JWT
     const jwt = signToken({ id: admin_id, email })
 
-    const response = NextResponse.redirect(new URL('/admin', req.url))
+    const response = NextResponse.redirect(new URL('/admin', baseUrl))
     response.cookies.set('token', jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -38,6 +39,6 @@ export async function GET(req: NextRequest) {
     return response
   } catch (error: any) {
     console.error('Verify error:', error)
-    return NextResponse.redirect(new URL('/admin/login?error=server', req.url))
+    return NextResponse.redirect(new URL('/admin/login?error=server', baseUrl))
   }
 }
