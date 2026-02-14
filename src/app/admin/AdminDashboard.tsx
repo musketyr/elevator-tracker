@@ -39,7 +39,7 @@ function ReportPreview({ elevator, previewLang }: { elevator: Elevator; previewL
         <span className="text-xs bg-white border rounded-lg px-2 py-1 text-gray-500">{languageNames[previewLang]}</span>
       </div>
       <div className="text-center mb-6">
-        <p className="text-4xl mb-2">🛗</p>
+        <img src="/logo.png" alt="Elevator" className="w-16 h-16 mx-auto mb-2" />
         <h3 className="text-xl font-bold text-gray-800">{elevator.name}</h3>
         {elevator.location && <p className="text-gray-500 text-sm mt-1">{elevator.location}</p>}
       </div>
@@ -246,7 +246,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center text-lg">🛗</div>
+            <img src="/logo.png" alt="Elevator Tracker" className="w-9 h-9 rounded-xl" />
             <h1 className="text-xl font-bold text-slate-800">Elevator Tracker</h1>
           </a>
           <div className="flex items-center gap-4">
@@ -361,7 +361,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
               ))}
               {elevators.length === 0 && (
                 <div className="text-center py-12 text-slate-400">
-                  <p className="text-4xl mb-3">🛗</p>
+                  <img src="/logo.png" alt="Elevator" className="w-16 h-16 mx-auto mb-3" />
                   <p>No elevators yet. Add one!</p>
                 </div>
               )}

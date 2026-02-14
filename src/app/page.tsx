@@ -54,9 +54,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
         <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl font-bold">
-            🛗
-          </div>
+          <img src="/logo.png" alt="Elevator Tracker" className="w-10 h-10 rounded-xl" />
           <span className="text-xl font-bold">Elevator Tracker</span>
         </a>
         <div className="flex items-center gap-3">
@@ -110,7 +108,7 @@ export default function LandingPage() {
           <div className="max-w-xs mx-auto bg-white rounded-[2.5rem] p-3 shadow-2xl shadow-blue-500/10">
             <div className="bg-gradient-to-b from-blue-50 to-blue-100 rounded-[2rem] p-6 text-left">
               <div className="text-center mb-4">
-                <p className="text-4xl mb-2">🛗</p>
+                <img src="/logo.png" alt="Elevator" className="w-16 h-16 mx-auto mb-2" />
                 <h3 className="text-lg font-bold text-gray-800">Building A — Lobby</h3>
                 <div className="mt-2 bg-blue-500 text-white rounded-xl py-2 px-4 inline-block text-sm font-semibold">
                   {t(lang, 'problemScan')}
