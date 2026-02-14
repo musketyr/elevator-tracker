@@ -35,23 +35,23 @@ export default function LoginPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
-          <p className="text-5xl mb-4">📧</p>
-          <h1 className="text-2xl font-bold mb-2">Check your email!</h1>
-          <p className="text-gray-500">We sent a login link to <strong>{email}</strong></p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full text-center mx-4 animate-in">
+          <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-5">📧</div>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Check your email!</h1>
+          <p className="text-slate-500">We sent a login link to <strong className="text-slate-700">{email}</strong></p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
-        <div className="text-center mb-6">
-          <p className="text-5xl mb-3">🛗</p>
-          <h1 className="text-2xl font-bold">Elevator Tracker</h1>
-          <p className="text-gray-500 mt-1">Admin Login</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800">
+      <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-md w-full mx-4">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">🛗</div>
+          <h1 className="text-2xl font-bold text-slate-800">Elevator Tracker</h1>
+          <p className="text-slate-500 mt-1">Admin Login</p>
         </div>
 
         <form onSubmit={submit} className="space-y-4">
@@ -61,17 +61,26 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-slate-800 placeholder:text-slate-400"
           />
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 disabled:opacity-50"
+            className="w-full bg-blue-500 text-white py-3.5 rounded-2xl font-semibold hover:bg-blue-600 disabled:opacity-50 transition-all hover:shadow-lg hover:shadow-blue-500/25"
           >
-            {loading ? '...' : 'Send Magic Link'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Sending...
+              </span>
+            ) : 'Send Magic Link'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <a href="/" className="text-sm text-slate-400 hover:text-slate-600 transition-colors">← Back to home</a>
+        </div>
       </div>
     </div>
   )
