@@ -10,10 +10,12 @@ const LANG_FLAGS: Record<string, string> = {
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
   const [lang, setLang] = useState<Lang>('en')
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
     setMounted(true)
     setLang(detectBrowserLanguage())
+    fetch('/api/auth/status').then(r => r.json()).then(d => { if (d.loggedIn) setLoggedIn(true) }).catch(() => {})
   }, [])
 
   const features = [
@@ -68,10 +70,10 @@ export default function LandingPage() {
             ))}
           </select>
           <a
-            href="/admin/login"
+            href={loggedIn ? "/admin" : "/admin/login"}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all hover:shadow-lg hover:shadow-blue-500/25"
           >
-            {t(lang, 'logIn')}
+            {loggedIn ? 'Dashboard' : t(lang, 'logIn')}
           </a>
         </div>
       </nav>
@@ -95,10 +97,10 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="/admin/login"
+              href={loggedIn ? "/admin" : "/admin/login"}
               className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all hover:shadow-xl hover:shadow-blue-500/25 hover:-translate-y-0.5"
             >
-              {t(lang, 'getStarted')}
+              {loggedIn ? 'Go to Dashboard' : t(lang, 'getStarted')}
             </a>
           </div>
         </div>
@@ -177,10 +179,10 @@ export default function LandingPage() {
             {t(lang, 'ctaDesc')}
           </p>
           <a
-            href="/admin/login"
+            href={loggedIn ? "/admin" : "/admin/login"}
             className="inline-block bg-white text-blue-600 px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
           >
-            {t(lang, 'ctaButton')}
+            {loggedIn ? 'Go to Dashboard' : t(lang, 'ctaButton')}
           </a>
         </div>
       </section>

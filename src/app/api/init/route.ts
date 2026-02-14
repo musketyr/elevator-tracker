@@ -54,6 +54,28 @@ export async function GET() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_created ON reports(created_at)`)
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_reports_elevator_device ON reports(elevator_id, device_hash, created_at)`)
 
+    // Elevator admins junction table (admin scoping per elevator)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS elevator_admins (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        admin_id UUID REFERENCES admins(id) ON DELETE CASCADE,
+        elevator_id UUID REFERENCES elevators(id) ON DELETE CASCADE,
+        role VARCHAR(50) DEFAULT 'admin',
+        created_at TIMESTAMP DEFAULT now(),
+        UNIQUE(admin_id, elevator_id)
+      )
+    `)
+
+    // Add elevator_id to magic_links for scoped invitations
+    await pool.query(`ALTER TABLE magic_links ADD COLUMN IF NOT EXISTS elevator_id UUID REFERENCES elevators(id) ON DELETE SET NULL`)
+
+    // Migrate existing data: if elevators have admin_id, create elevator_admins entries
+    await pool.query(`
+      INSERT INTO elevator_admins (admin_id, elevator_id, role)
+      SELECT admin_id, id, 'owner' FROM elevators WHERE admin_id IS NOT NULL
+      ON CONFLICT (admin_id, elevator_id) DO NOTHING
+    `)
+
     return NextResponse.json({ ok: true, message: 'Database initialized' })
   } catch (error: any) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 })

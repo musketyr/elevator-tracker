@@ -81,6 +81,7 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   const [location, setLocation] = useState('')
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en'])
   const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteElevatorId, setInviteElevatorId] = useState('')
   const [inviteMsg, setInviteMsg] = useState('')
   const [selectedElevator, setSelectedElevator] = useState<string | null>(null)
   const [stats, setStats] = useState<any>(null)
@@ -151,16 +152,23 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
   }
 
   const inviteAdmin = async () => {
+    if (!inviteElevatorId) {
+      setInviteMsg('Please select an elevator')
+      setTimeout(() => setInviteMsg(''), 3000)
+      return
+    }
     const res = await fetch('/api/admin/invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: inviteEmail }),
+      body: JSON.stringify({ email: inviteEmail, elevatorId: inviteElevatorId }),
     })
     if (res.ok) {
       setInviteMsg('Invitation sent!')
       setInviteEmail('')
+      setInviteElevatorId('')
     } else {
-      setInviteMsg('Failed to send invite')
+      const data = await res.json()
+      setInviteMsg(data.error || 'Failed to send invite')
     }
     setTimeout(() => setInviteMsg(''), 3000)
   }
@@ -365,17 +373,29 @@ export default function AdminDashboard({ admin }: { admin: Admin }) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
                 Invite Admin
               </h3>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="admin@email.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-                <button onClick={inviteAdmin} className="bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-violet-600 transition-colors">
-                  Invite
-                </button>
+              <div className="space-y-2">
+                <select
+                  value={inviteElevatorId}
+                  onChange={(e) => setInviteElevatorId(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">Select elevator...</option>
+                  {elevators.map((el) => (
+                    <option key={el.id} value={el.id}>{el.name}{el.location ? ` — ${el.location}` : ''}</option>
+                  ))}
+                </select>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    placeholder="admin@email.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <button onClick={inviteAdmin} className="bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-violet-600 transition-colors">
+                    Invite
+                  </button>
+                </div>
               </div>
               {inviteMsg && (
                 <p className={`text-sm mt-2 ${inviteMsg.includes('sent') ? 'text-green-600' : 'text-red-500'}`}>

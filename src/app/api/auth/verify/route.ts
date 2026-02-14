@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const result = await pool.query(
-      `SELECT ml.id, ml.admin_id, a.email FROM magic_links ml JOIN admins a ON a.id = ml.admin_id WHERE ml.token = $1 AND ml.expires_at > NOW() AND ml.used_at IS NULL`,
+      `SELECT ml.id, ml.admin_id, ml.elevator_id, a.email FROM magic_links ml JOIN admins a ON a.id = ml.admin_id WHERE ml.token = $1 AND ml.expires_at > NOW() AND ml.used_at IS NULL`,
       [token]
     )
 
@@ -19,10 +19,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/admin/login?error=expired', baseUrl))
     }
 
-    const { admin_id, email } = result.rows[0]
+    const { admin_id, email, elevator_id } = result.rows[0]
 
     // Mark as used
     await pool.query('UPDATE magic_links SET used_at = NOW() WHERE token = $1', [token])
+
+    // If this magic link was scoped to an elevator, grant access
+    if (elevator_id) {
+      await pool.query(
+        'INSERT INTO elevator_admins (admin_id, elevator_id, role) VALUES ($1, $2, $3) ON CONFLICT (admin_id, elevator_id) DO NOTHING',
+        [admin_id, elevator_id, 'admin']
+      )
+    }
 
     // Create JWT
     const jwt = signToken({ id: admin_id, email })
